@@ -1,0 +1,46 @@
+/* Buttons */
+.btn {
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Cards */
+.card {
+  background-color: white;
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Forms */
+input, select, textarea {
+  padding: 10px;
+  margin: 5px 0 15px 0;
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: var(--border-radius);
+}
+
+input:focus, textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+/* Headers */
+h1, h2, h3, h4 {
+  margin-bottom: 15px;
+  color: var(--primary-color);
+}
+
+/* Containers */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
