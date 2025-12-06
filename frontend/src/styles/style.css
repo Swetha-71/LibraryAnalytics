@@ -1,80 +1,160 @@
 /* ---- GLOBAL Page Centering ---- */
 body {
   margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background: #f7f9fc;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #f5f7ff 0%, #e2e8f0 40%, #cbd5e1 100%);
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  color: #111827;
+}
+/* ----- Toggle between Existing / New user ----- */
+.login-toggle {
+  display: inline-flex;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  padding: 2px;
+  margin-bottom: 18px;
+  background-color: #f3f4f6;
+  gap: 4px;
+}
+
+.login-toggle button {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.login-toggle button.active {
+  background: #0f766e;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(15, 118, 110, 0.25);
+}
+
+/* make sure the toggle is left-aligned with form */
+.login-container .login-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 /* ---- Login Card ---- */
 .login-container {
-  width: 380px;
+  width: 400px;
+  max-width: 90vw;
   background: #ffffff;
-  padding: 35px;
-  border-radius: 18px;
+  padding: 32px 30px 26px;
+  border-radius: 20px;
   margin: auto;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-  animation: fadeIn 0.6s ease-in-out;
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.18),
+    0 0 0 1px rgba(148, 163, 184, 0.25);
+  animation: fadeIn 0.5s ease-out;
 }
 
+/* Title */
 .login-container h2 {
   text-align: center;
-  margin-bottom: 25px;
-  color: #044f3c;
+  margin: 0 0 22px;
+  color: #0f172a;
   font-weight: 600;
+  letter-spacing: 0.03em;
+}
+body.login-page {
+  background: radial-gradient(circle at top, #f5f7ff 0%, #e2e8f0 40%, #cbd5e1 100%);
 }
 
 /* ---- Inputs ---- */
 .login-input {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
+  padding: 11px 12px;
+  margin-bottom: 14px;
   border-radius: 10px;
-  border: 1.5px solid #c7d1d8;
-  transition: 0.25s;
+  border: 1px solid #cbd5e1;
+  background-color: #f9fafb;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s;
+  box-sizing: border-box;
 }
 
 .login-input:focus {
-  border-color: #067a5a;
+  border-color: #2563eb;
+  background-color: #ffffff;
   outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
 }
 
 /* ---- Button ---- */
 .login-btn {
   width: 100%;
-  padding: 12px;
-  background: #067a5a;
+  padding: 11px 0;
+  background: linear-gradient(135deg, #1d4ed8, #0f766e);
   border: none;
-  color: #fff;
-  font-size: 16px;
+  color: #ffffff;
+  font-size: 0.98rem;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: 999px;
   cursor: pointer;
-  transition: 0.25s;
+  letter-spacing: 0.02em;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  margin-top: 4px;
 }
 
 .login-btn:hover {
-  background: #045844;
+  filter: brightness(1.03);
+  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.18);
+  transform: translateY(-1px);
+}
+
+.login-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
 }
 
 /* ---- Error Message ---- */
 .error-text {
-  color: #d62828;
+  color: #b91c1c;
   text-align: center;
   margin-top: 10px;
+  font-size: 0.9rem;
 }
 
+/* ---- Demo Info ---- */
 .demo-info {
   margin-top: 20px;
-  font-size: 14px;
-  color: #666;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.85rem;
+  color: #4b5563;
+  text-align: left;
+  line-height: 1.4;
 }
 
 /* Animation */
 @keyframes fadeIn {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+/* Ensure app wrapper doesn't add its own background */
+#root,
+.App {
+  background: transparent;
+}
+
+/* Optional: reduce top header area if using a layout */
+.app-main {
+  background: transparent;
+  padding-top: 24px;
 }

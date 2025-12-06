@@ -3,6 +3,7 @@ package com.libraryanalytics.controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import jakarta.annotation.PostConstruct;
 
 @RestController
 @RequestMapping("/api")

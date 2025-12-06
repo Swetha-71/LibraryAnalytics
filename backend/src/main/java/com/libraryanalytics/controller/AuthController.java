@@ -1,10 +1,13 @@
 package com.libraryanalytics.controller;
 
 import com.libraryanalytics.model.User;
+import com.libraryanalytics.model.LoginRequest;
 import com.libraryanalytics.repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -43,44 +46,48 @@ public class AuthController {
     }
 
   @PostMapping("/login")
-public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-    String username = request.getUsername();
-    String password = request.getPassword();
+public Map<String, Object> login(@RequestBody Map<String, String> body) {
+    String username = body.get("username");
+    String password = body.get("password");
 
-    // Try Users collection
-    User user = userRepository.findByUsername(username);
+    // Check MongoDB first
+   User user = userRepository.findByUsername(username).get();
 
-    if (user == null) {
-        // If not found in Users, try Students
-        Student student = studentRepository.findByUsername(username);
+    if (user != null && user.getPassword().equals(password)) {
+        return Map.of(
+                "success", true,
+                "username", user.getUsername(),
+                "name", user.getName(),
+                "role", user.getRole()
+        );
+    }
 
-        if (student == null || !student.getPassword().equals(password)) {
-            return ResponseEntity.status(401).body("Invalid credentials");
+    // Demo fallback users
+    if ("admin".equals(username) && "admin123".equals(password)) {
+        return Map.of("success", true, "username", "admin", "name", "Admin", "role", "ADMIN");
+    }
+
+    if ("librarian".equals(username) && "lib123".equals(password)) {
+        return Map.of("success", true, "username", "librarian", "name", "Library Manager", "role", "LIBRARIAN");
+    }
+
+    if ("student1".equals(username) && "stu123".equals(password)) {
+        return Map.of("success", true, "username", "student1", "name", "Student 1", "role", "STUDENT");
+    }
+
+    return Map.of("success", false, "message", "Invalid credentials");
+}
+
+    public static class LoginResponse {
+        private final String username;
+        private final String role;
+
+        public LoginResponse(String username, String role) {
+            this.username = username;
+            this.role = role;
         }
 
-        // Student auth success
-        return ResponseEntity.ok(new LoginResponse(student.getUsername(), "STUDENT"));
+        public String getUsername() { return username; }
+        public String getRole() { return role; }
     }
-
-    // If user found but password mismatch
-    if (!user.getPassword().equals(password)) {
-        return ResponseEntity.status(401).body("Invalid credentials");
-    }
-
-    // Normal user login success
-    return ResponseEntity.ok(new LoginResponse(user.getUsername(), user.getRole()));
-}
-public class LoginResponse {
-    private String username;
-    private String role;
-
-    public LoginResponse(String username, String role) {
-        this.username = username;
-        this.role = role;
-    }
-
-    public String getUsername() { return username; }
-    public String getRole() { return role; }
-}
-
 }
