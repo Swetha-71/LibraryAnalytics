@@ -9,6 +9,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import "./styles/theme.css";
 import "./styles/components.css";
+import LoginActivity from "./components/LoginActivity"
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -140,6 +141,14 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          <Route
+  path="/login-activity"
+  element={
+    <ProtectedRoute allowedRoles={["ADMIN"]}>
+      <LoginActivity />
+    </ProtectedRoute>
+  }
+/>
         </Routes>
       </div>
     </div>

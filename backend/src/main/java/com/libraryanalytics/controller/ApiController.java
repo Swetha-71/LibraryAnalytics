@@ -78,23 +78,23 @@ public class ApiController {
         }
     }
     // === Authentication Support ===
-private final Map<String, String[]> users = new HashMap<>();
+//private final Map<String, String[]> users = new HashMap<>();
 
-@PostConstruct
-public void initUsers() {
-    users.put("admin", new String[]{"admin123", "Admin User", "ADMIN"});
-    users.put("librarian", new String[]{"lib123", "Library Staff", "LIBRARIAN"});
-    users.put("student1", new String[]{"stu123", "Student One", "STUDENT"});
-}
+//@PostConstruct
+//public void initUsers() {
+  //  users.put("admin", new String[]{"admin123", "Admin User", "ADMIN"});
+    //users.put("librarian", new String[]{"lib123", "Library Staff", "LIBRARIAN"});
+    //users.put("student1", new String[]{"stu123", "Student One", "STUDENT"});
+//}
 
-@PostMapping("/login")
-public AuthResponse login(@RequestBody AuthRequest request) {
-    String[] userInfo = users.get(request.username);
-
-    if (userInfo != null && userInfo[0].equals(request.password)) {
-        return new AuthResponse(true, request.username, userInfo[1], userInfo[2]);
-    }
-    return new AuthResponse(false, null, null, null);
-}
+//@PostMapping("/login")
+//public AuthResponse login(@RequestBody AuthRequest request) {
+  //  String[] userInfo = users.get(request.username);
+//
+  //  if (userInfo != null && userInfo[0].equals(request.password)) {
+    //    return new AuthResponse(true, request.username, userInfo[1], userInfo[2]);
+    //}
+    //return new AuthResponse(false, null, null, null);
+//}
 
 }  // ← FINAL CLOSING BRACE
