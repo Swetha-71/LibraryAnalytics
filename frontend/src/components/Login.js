@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "../styles/style.css";
 
 const Login = () => {
-  const [mode, setMode] = useState("login"); // "login" | "register"
-  const [username, setUsername] = useState("");
+  const [identifier, setIdentifier] = useState(""); // email or username
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [role, setRole] = useState("STUDENT"); // ADMIN | MANAGER | STUDENT
   const [error, setError] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // Apply login-page background only on this screen
   useEffect(() => {
     document.body.classList.add("login-page");
     return () => document.body.classList.remove("login-page");
@@ -23,146 +19,58 @@ const Login = () => {
     event.preventDefault();
     setError("");
 
-    const result = await login(username, password);
+    // login must accept identifier (email/username) + password
+    const result = await login(identifier, password);
 
     if (result.success) {
-      if (result.role === "ADMIN") navigate("/dashboard");
-      else if (result.role === "MANAGER") navigate("/analytics");
-      else if (result.role === "STUDENT") navigate("/dashboard");
-      else navigate("/");
+      if (result.role === "ADMIN" || result.role === "MANAGER") {
+        navigate("/dashboard");
+      } else if (result.role === "STUDENT") {
+        navigate("/student");
+      } else {
+        navigate("/");
+      }
     } else {
       setError("Invalid credentials. Please try again.");
     }
-  };
-
-  const handleRegister = async (event) => {
-    event.preventDefault();
-    setError("");
-
-    try {
-      const res = await fetch("http://localhost:8080/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, name, role }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        setError(data.message || "Registration failed. Please try again.");
-        return;
-      }
-
-      setMode("login");
-      setError("Registration successful! Please log in.");
-    } catch (e) {
-      setError("Registration error. Please try again.");
-    }
-  };
+  }; // ← close handleLogin here
 
   return (
     <div className="login-container">
-      <h2>🔐 {mode === "login" ? "Login" : "Register"}</h2>
+      <h2>🔐 Login</h2>
 
-      <div className="login-toggle">
-        <button
-          type="button"
-          className={mode === "login" ? "active" : ""}
-          onClick={() => setMode("login")}
-        >
-          Existing user
+      <form onSubmit={handleLogin}>
+        <input
+          type="text"
+          placeholder="Email or username"
+          className="login-input"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          className="login-input"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+
+        <button type="submit" className="login-btn">
+          Login
         </button>
-        <button
-          type="button"
-          className={mode === "register" ? "active" : ""}
-          onClick={() => setMode("register")}
-        >
-          New user
-        </button>
-      </div>
-
-      {mode === "login" ? (
-        <form onSubmit={handleLogin}>
-          <input
-            type="text"
-            placeholder="Username"
-            className="login-input"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            className="login-input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          <button type="submit" className="login-btn">
-            Login
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={handleRegister}>
-          <input
-            type="text"
-            placeholder="Full name"
-            className="login-input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-
-          <input
-            type="text"
-            placeholder="Username"
-            className="login-input"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            className="login-input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          <select
-            className="login-input"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <option value="ADMIN">Admin</option>
-            <option value="MANAGER">Librarian / Manager</option>
-            <option value="STUDENT">Student</option>
-          </select>
-
-          <button type="submit" className="login-btn">
-            Register
-          </button>
-        </form>
-      )}
+      </form>
 
       {error && <p className="error-text">{error}</p>}
 
-      {mode === "login" && (
-        <div className="demo-info">
-          <b>Demo users:</b>
-          <br />
-          admin / admin123 (Admin)
-          <br />
-          librarian / lib123 (Manager)
-          <br />
-          student1 / stu123 (Student)
-        </div>
-      )}
+      <p style={{ marginTop: 16, fontSize: "0.9rem", textAlign: "center" }}>
+        New user?{" "}
+        <Link to="/register" style={{ color: "#2563eb", fontWeight: 500 }}>
+          Register here
+        </Link>
+      </p>
     </div>
   );
 };

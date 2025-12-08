@@ -1,45 +1,57 @@
-import React, { useState } from 'react';
-import { register as registerApi } from '../services/api';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { register as registerApi } from "../services/api";
+import { useNavigate, Link } from "react-router-dom";
+import "../styles/style.css";
 
 const Register = () => {
-  const [form, setForm] = useState({ name: '', username: '', password: '' });
-  const [error, setError] = useState('');
-  const [ok, setOk] = useState('');
+  const [form, setForm] = useState({
+    email: "",
+    username: "",
+    password: "",
+    role: "STUDENT", // default role
+  });
+  const [error, setError] = useState("");
+  const [ok, setOk] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = e => {
+  useEffect(() => {
+    document.body.classList.add("login-page");
+    return () => document.body.classList.remove("login-page");
+  }, []);
+
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setOk('');
+    setError("");
+    setOk("");
     try {
-      const res = await registerApi({ ...form, role: 'STUDENT' });
+      const res = await registerApi(form); // { email, username, password, role }
       if (res.success) {
-        setOk('Registered successfully. You can now log in.');
-        setTimeout(() => navigate('/login'), 1000);
+        setOk("Registered successfully. You can now log in.");
+        setTimeout(() => navigate("/login"), 1000);
       } else {
-        setError(res.message || 'Registration failed');
+        setError(res.message || "Registration failed");
       }
     } catch (err) {
-      setError('Server error');
+      setError("Server error");
     }
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: '2rem auto' }}>
-      <h2>Register</h2>
+    <div className="login-container">
+      <h2>📝 Register</h2>
       <form onSubmit={handleSubmit}>
         <input
-          name="name"
-          placeholder="Full name"
-          value={form.name}
+          name="email"
+          type="email"
+          placeholder="Email address"
+          value={form.email}
           onChange={handleChange}
           required
-          style={{ display: 'block', width: '100%', marginBottom: 10 }}
+          className="login-input"
         />
         <input
           name="username"
@@ -47,7 +59,7 @@ const Register = () => {
           value={form.username}
           onChange={handleChange}
           required
-          style={{ display: 'block', width: '100%', marginBottom: 10 }}
+          className="login-input"
         />
         <input
           type="password"
@@ -56,12 +68,35 @@ const Register = () => {
           value={form.password}
           onChange={handleChange}
           required
-          style={{ display: 'block', width: '100%', marginBottom: 10 }}
+          className="login-input"
         />
-        <button type="submit" style={{ width: '100%' }}>Sign up</button>
+
+        <select
+          name="role"
+          value={form.role}
+          onChange={handleChange}
+          className="login-input"
+          required
+        >
+          <option value="ADMIN">Admin</option>
+          <option value="MANAGER">Librarian / Manager</option>
+          <option value="STUDENT">Student</option>
+        </select>
+
+        <button type="submit" className="login-btn">
+          Sign up
+        </button>
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {ok && <p style={{ color: 'green' }}>{ok}</p>}
+
+      {error && <p className="error-text">{error}</p>}
+      {ok && <p className="error-text" style={{ color: "green" }}>{ok}</p>}
+
+      <p style={{ marginTop: 16, fontSize: "0.9rem", textAlign: "center" }}>
+        Already have an account?{" "}
+        <Link to="/login" style={{ color: "#2563eb", fontWeight: 500 }}>
+          Login
+        </Link>
+      </p>
     </div>
   );
 };
