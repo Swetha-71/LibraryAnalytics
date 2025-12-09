@@ -4,35 +4,41 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
-const API_URL = "http://localhost:8080/api/auth";
+const API_URL = "http://localhost:8080/api";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
+const login = async (identifier, password) => {
+  try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ identifier, password }),
+    });
 
-  const login = async (username, password) => {
-    try {
-      const response = await fetch(`${API_URL}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+    console.log("Login status:", response.status);
 
-      const data = await response.json();
+    const data = await response.json().catch(() => {
+      console.error("Failed to parse JSON");
+      return { success: false, message: "Bad response from server" };
+    });
 
-      if (data.success) {
-        setUser(data);
-        localStorage.setItem("user", JSON.stringify(data));
-      }
+    console.log("Login data:", data);
 
-      return data;
-    } catch (err) {
-      console.error("Login failed:", err);
-      return { success: false, message: "Login error" };
+    if (data.success) {
+      setUser(data);
+      localStorage.setItem("user", JSON.stringify(data));
     }
-  };
+
+    return data;
+  } catch (err) {
+    console.error("Login failed:", err);
+    return { success: false, message: "Login error" };
+  }
+};
 
  // AuthContext.js
 const logout = () => {

@@ -16,24 +16,24 @@ const Login = () => {
   }, []);
 
   const handleLogin = async (event) => {
-    event.preventDefault();
-    setError("");
+  event.preventDefault();
+  setError("");
 
-    // login must accept identifier (email/username) + password
-    const result = await login(identifier, password);
+  const result = await login(identifier, password); // identifier = email or username
 
-    if (result.success) {
-      if (result.role === "ADMIN" || result.role === "LIBRARIAN") {
-        navigate("/dashboard");
-      } else if (result.role === "STUDENT") {
-        navigate("/student");
-      } else {
-        navigate("/");
-      }
+  if (result.success) {
+    if (result.role === "ADMIN" || result.role === "MANAGER") {
+      navigate("/dashboard");
+    } else if (result.role === "STUDENT") {
+      navigate("/student");
     } else {
-      setError("Invalid credentials. Please try again.");
+      navigate("/");
     }
-  }; // ← close handleLogin here
+  } else {
+    setError(result.message || "Invalid credentials. Please try again.");
+  }
+};
+// ← close handleLogin here
 
   return (
     <div className="login-container">
