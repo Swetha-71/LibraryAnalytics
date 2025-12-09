@@ -2,92 +2,80 @@ package com.libraryanalytics.controller;
 
 import com.libraryanalytics.model.User;
 import com.libraryanalytics.model.LoginRequest;
-import com.libraryanalytics.repository.UserRepository;
-import org.springframework.http.ResponseEntity;
+import com.libraryanalytics.dto.RegisterRequest;
+import com.libraryanalytics.service.UserService;  // ✅ IMPORTANT IMPORT
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;   // ✅ Declare service
 
-    public AuthController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public AuthController(UserService userService) {  // ✅ Constructor injection
+        this.userService = userService;
     }
 
+    // REGISTER
     @PostMapping("/register")
-    public Map<String, Object> register(@RequestBody Map<String, String> body) {
-        String username = body.get("username");
-        String password = body.get("password");
-        String name     = body.get("name");
-        String role     = body.getOrDefault("role", "STUDENT");
+    public Map<String, Object> register(@RequestBody RegisterRequest req) {
 
-        if (username == null || password == null || name == null) {
-            return Map.of("success", false, "message", "Missing fields");
-        }
-        if (userRepository.existsByUsername(username)) {
-            return Map.of("success", false, "message", "Username already taken");
+        if (userService.existsByUsername(req.getUsername())) {
+            return Map.of("success", false, "message", "Username already exists");
         }
 
-        User user = new User(username, password, name, role);
-        userRepository.save(user);
+        if (!req.getEmail().contains("@")) {
+            return Map.of("success", false, "message", "Invalid email address");
+        }
 
-        return Map.of(
-                "success", true,
-                "username", user.getUsername(),
-                "name", user.getName(),
-                "role", user.getRole()
+        User user = new User(
+                req.getName(),
+                req.getUsername(),
+                req.getEmail(),
+                req.getPassword(),
+                req.getRole() != null ? req.getRole() : "STUDENT"
         );
+
+        userService.saveUser(user);
+
+        return Map.of("success", true, "message", "User registered successfully");
     }
 
-  @PostMapping("/login")
-public Map<String, Object> login(@RequestBody Map<String, String> body) {
-    String username = body.get("username");
-    String password = body.get("password");
+    // LOGIN
+    @PostMapping("/login")
+    public Map<String, Object> login(@RequestBody LoginRequest body) {
 
-    // Check MongoDB first
-   User user = userRepository.findByUsername(username).get();
+        String username = body.getUsername();
+        String password = body.getPassword();
 
-    if (user != null && user.getPassword().equals(password)) {
-        return Map.of(
-                "success", true,
-                "username", user.getUsername(),
-                "name", user.getName(),
-                "role", user.getRole()
-        );
-    }
+        // Database check
+        User user = userService.findByUsername(username);
 
-    // Demo fallback users
-    if ("admin".equals(username) && "admin123".equals(password)) {
-        return Map.of("success", true, "username", "admin", "name", "Admin", "role", "ADMIN");
-    }
-
-    if ("librarian".equals(username) && "lib123".equals(password)) {
-        return Map.of("success", true, "username", "librarian", "name", "Library Manager", "role", "LIBRARIAN");
-    }
-
-    if ("student1".equals(username) && "stu123".equals(password)) {
-        return Map.of("success", true, "username", "student1", "name", "Student 1", "role", "STUDENT");
-    }
-
-    return Map.of("success", false, "message", "Invalid credentials");
-}
-
-    public static class LoginResponse {
-        private final String username;
-        private final String role;
-
-        public LoginResponse(String username, String role) {
-            this.username = username;
-            this.role = role;
+        if (user != null && user.getPassword().equals(password)) {
+            return Map.of(
+                    "success", true,
+                    "username", user.getUsername(),
+                    "role", user.getRole(),
+                    "name", user.getName()
+            );
         }
 
-        public String getUsername() { return username; }
-        public String getRole() { return role; }
+        // Demo fallback users
+        if ("admin".equals(username) && "admin123".equals(password)) {
+            return Map.of("success", true, "username", "admin", "role", "ADMIN");
+        }
+
+        if ("librarian".equals(username) && "lib123".equals(password)) {
+            return Map.of("success", true, "username", "librarian", "role", "LIBRARIAN");
+        }
+
+        if ("student1".equals(username) && "stu123".equals(password)) {
+            return Map.of("success", true, "username", "student1", "role", "STUDENT");
+        }
+
+        return Map.of("success", false, "message", "Invalid credentials");
     }
 }
