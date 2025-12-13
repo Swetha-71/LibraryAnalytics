@@ -1,38 +1,61 @@
-// src/components/StudentDashboard.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { getStudentProfile, getSemesterRecommendations } from "../services/api";
 
 const StudentDashboard = () => {
+  const { user } = useAuth();
+  const [profile, setProfile] = useState(null);
+  const [recommended, setRecommended] = useState([]);
+
+  useEffect(() => {
+  if (!user) return;
+  getStudentProfile(user.username)
+    .then((data) => {
+      if (data.success) setProfile(data);
+      else setProfile(null);
+    })
+    .catch((err) => {
+      console.error("Profile load failed", err);
+      setProfile(null);
+    });
+}, [user]);
+
+  if (!user) return <div>Please log in.</div>;
+
   return (
     <div style={{ padding: "24px" }}>
       <h2>Your Library Activity</h2>
 
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-        gap: "16px",
-        marginTop: "16px"
-      }}>
-        <div className="card">
-          <h3>Books Currently Issued</h3>
-          <p>2</p>
-        </div>
-        <div className="card">
-          <h3>Overdue Books</h3>
-          <p>0</p>
-        </div>
-        <div className="card">
-          <h3>Total Books Read</h3>
-          <p>18</p>
-        </div>
-      </div>
+      {profile ? (
+        <>
+          <p>
+            Branch: <b>{profile.branch}</b> | Semester:{" "}
+            <b>{profile.semester}</b>
+          </p>
+          <p>
+  Subjects this semester:{" "}
+  {profile.subjects && profile.subjects.length > 0
+    ? profile.subjects.map((s) => s.shortName).join(", ")
+    : "Not set yet"}
+</p>
 
-      <div style={{ marginTop: "24px" }}>
-        <h3>Suggestions</h3>
+        </>
+      ) : (
+        <p>No profile yet. Ask librarian/admin to set your branch & semester.</p>
+      )}
+
+      <h3>Recommended Books for Your Semester</h3>
+      {recommended.length === 0 ? (
+        <p>No recommendations yet.</p>
+      ) : (
         <ul>
-          <li>Borrow at least one book from your current semester subjects.</li>
-          <li>See what your classmates are reading (coming soon).</li>
+          {recommended.map(b => (
+            <li key={b.id || b._id}>
+              {b.title} – {b.author}
+            </li>
+          ))}
         </ul>
-      </div>
+      )}
     </div>
   );
 };

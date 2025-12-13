@@ -1,7 +1,12 @@
 package com.libraryanalytics.controller;
 
 import com.libraryanalytics.model.User;
+import com.libraryanalytics.model.StudentProfile;
+import com.libraryanalytics.model.LoginActivity;
 import com.libraryanalytics.repository.UserRepository;
+import com.libraryanalytics.repository.StudentProfileRepository;
+import com.libraryanalytics.repository.LoginActivityRepository;
+import com.libraryanalytics.service.OtpService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -13,9 +18,28 @@ import java.util.Optional;
 public class AuthController {
 
     private final UserRepository userRepository;
+    private final StudentProfileRepository studentProfileRepository;
+    private final LoginActivityRepository loginActivityRepository;
+    private final OtpService otpService;
 
-    public AuthController(UserRepository userRepository) {
+    public AuthController(UserRepository userRepository,
+                          StudentProfileRepository studentProfileRepository,
+                          LoginActivityRepository loginActivityRepository,
+                          OtpService otpService) {
         this.userRepository = userRepository;
+        this.studentProfileRepository = studentProfileRepository;
+        this.loginActivityRepository = loginActivityRepository;
+        this.otpService = otpService;
+    }
+
+    @PostMapping("/send-otp")
+    public Map<String, Object> sendOtp(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        if (email == null) {
+            return Map.of("success", false, "message", "Email required");
+        }
+        otpService.sendOtp(email);
+        return Map.of("success", true, "message", "OTP sent");
     }
 
     // -------- REGISTER --------
@@ -24,17 +48,36 @@ public class AuthController {
         String email    = body.get("email");
         String username = body.get("username");
         String password = body.get("password");
-        String role     = body.getOrDefault("role", "STUDENT");
+        String otp      = body.get("otp");
 
-        if (email == null || username == null || password == null) {
+        String branch   = body.get("branch");
+        String semStr   = body.get("semester");
+
+        if (email == null || username == null || password == null || otp == null) {
             return Map.of("success", false, "message", "Missing fields");
+        }
+        if (!otpService.verifyOtp(email, otp)) {
+            return Map.of("success", false, "message", "Invalid or expired OTP");
         }
         if (userRepository.existsByUsername(username)) {
             return Map.of("success", false, "message", "Username already taken");
         }
 
+        String role = "STUDENT";
         User user = new User(username, password, email, role);
         userRepository.save(user);
+
+        // create student profile if branch + sem given
+        if (branch != null && semStr != null) {
+            int semester = Integer.parseInt(semStr);
+            StudentProfile profile = new StudentProfile(username, branch, semester);
+            studentProfileRepository.save(profile);
+        }
+
+        // log register with email
+        loginActivityRepository.save(
+            new LoginActivity(username, email, role, "REGISTER")
+        );
 
         return Map.of(
                 "success", true,
@@ -54,15 +97,21 @@ public class AuthController {
             return Map.of("success", false, "message", "Missing fields");
         }
 
-        // Try by username first
         Optional<User> byUsername = userRepository.findByUsername(identifier);
-
-        // If not found, try by email
         User user = byUsername.orElseGet(
                 () -> userRepository.findByEmail(identifier).orElse(null)
         );
 
+        // real users
         if (user != null && user.getPassword().equals(password)) {
+            loginActivityRepository.save(
+                new LoginActivity(
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getRole(),
+                    "SUCCESS"
+                )
+            );
             return Map.of(
                     "success", true,
                     "username", user.getUsername(),
@@ -71,21 +120,34 @@ public class AuthController {
             );
         }
 
-        // Demo fallback users using the same identifier
+        // demo fallback users – use dummy emails
         if ("admin".equals(identifier) && "admin123".equals(password)) {
+            loginActivityRepository.save(
+                new LoginActivity("admin", "admin@example.com", "ADMIN", "SUCCESS")
+            );
             return Map.of("success", true, "username", "admin", "role", "ADMIN");
         }
         if ("librarian".equals(identifier) && "lib123".equals(password)) {
+            loginActivityRepository.save(
+                new LoginActivity("librarian", "librarian@example.com", "LIBRARIAN", "SUCCESS")
+            );
             return Map.of("success", true, "username", "librarian", "role", "LIBRARIAN");
         }
         if ("student1".equals(identifier) && "stu123".equals(password)) {
+            loginActivityRepository.save(
+                new LoginActivity("student1", "student1@example.com", "STUDENT", "SUCCESS")
+            );
             return Map.of("success", true, "username", "student1", "role", "STUDENT");
         }
+
+        // optional: log failed attempt (no email known)
+        loginActivityRepository.save(
+            new LoginActivity(identifier, "", "UNKNOWN", "FAIL")
+        );
 
         return Map.of("success", false, "message", "Invalid credentials");
     }
 
-    // Optional DTO
     public static class LoginResponse {
         private final String username;
         private final String role;

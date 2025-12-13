@@ -1,55 +1,49 @@
-// frontend/src/context/AuthContext.js
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { loginApi } from "../services/api";
 
 const AuthContext = createContext();
-export const useAuth = () => useContext(AuthContext);
-
-const API_URL = "http://localhost:8080/api";
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
-const login = async (identifier, password) => {
-  try {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier, password }),
-    });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    console.log("Login status:", response.status);
-
-    const data = await response.json().catch(() => {
-      console.error("Failed to parse JSON");
-      return { success: false, message: "Bad response from server" };
-    });
-
-    console.log("Login data:", data);
-
-    if (data.success) {
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
+  // load saved user on refresh
+  useEffect(() => {
+    const saved = localStorage.getItem("la_user");
+    if (saved) {
+      setUser(JSON.parse(saved));
     }
+    setLoading(false);
+  }, []);
 
-    return data;
-  } catch (err) {
-    console.error("Login failed:", err);
-    return { success: false, message: "Login error" };
+  const login = async (identifier, password) => {
+  const res = await loginApi(identifier, password); // no try/catch for now
+  // console.log to see exactly what backend returns
+  console.log("loginApi response", res);
+  if (!res.success) {
+    return res;
   }
+  const loggedInUser = {
+    username: res.username,
+    email: res.email,
+    role: res.role,
+  };
+  setUser(loggedInUser);
+  localStorage.setItem("la_user", JSON.stringify(loggedInUser));
+  return { success: true, ...loggedInUser };
 };
 
- // AuthContext.js
-const logout = () => {
-  localStorage.removeItem("user");
-  setUser(null);
-  window.location.href = "/login";
-};
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("la_user");
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+export const useAuth = () => useContext(AuthContext);
