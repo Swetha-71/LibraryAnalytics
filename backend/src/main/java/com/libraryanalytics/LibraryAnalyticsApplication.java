@@ -20,30 +20,9 @@ public class LibraryAnalyticsApplication {
             if (userRepo.count() == 0) {
                 System.out.println("Preloading demo users...");
 
-                // Updated: name, username, email, password, role
-                userRepo.save(new User(
-                        "Admin User",
-                        "admin",
-                        "admin@gmail.com",
-                        "admin123",
-                        "ADMIN"
-                ));
-
-                userRepo.save(new User(
-                        "Library User",
-                        "librarian",
-                        "librarian@gmail.com",
-                        "lib123",
-                        "LIBRARIAN"
-                ));
-
-                userRepo.save(new User(
-                        "Student One",
-                        "student1",
-                        "student1@gmail.com",
-                        "stu123",
-                        "STUDENT"
-                ));
+                userRepo.save(new User("admin",     "admin123", "Admin User",   "ADMIN"));
+                userRepo.save(new User("librarian", "lib123",   "Library User", "MANAGER"));
+                userRepo.save(new User("student1",  "stu123",   "Student One",  "STUDENT"));
 
                 System.out.println("Demo users added.");
             } else {
