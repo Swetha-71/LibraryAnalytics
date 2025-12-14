@@ -1,9 +1,9 @@
 spring:
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: your_real_email@gmail.com
-    password: your_16_char_app_password
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: YOUR_MAILTRAP_USERNAME
+    password: YOUR_MAILTRAP_PASSWORD
     properties:
       mail:
         smtp:
