@@ -7,9 +7,7 @@ import Analytics from "./components/Analytics";
 import Alerts from "./components/Alerts";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import "./styles/theme.css";
-import "./styles/components.css";
-import LoginActivity from "./components/LoginActivity"
+import LoginActivity from "./components/LoginActivity";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -60,9 +58,7 @@ const Navbar = () => {
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { user, loading } = useAuth();
   if (loading) {
-    return (
-      <div style={{ padding: "50px", textAlign: "center" }}>Loading...</div>
-    );
+    return <div style={{ padding: "50px", textAlign: "center" }}>Loading...</div>;
   }
   if (!user) return <Navigate to="/login" replace />;
   if (allowedRoles.length && !allowedRoles.includes(user.role)) {
@@ -75,7 +71,7 @@ const RoleBasedHome = () => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   if (user.role === "STUDENT") return <Navigate to="/student" replace />;
-  return <Navigate to="/dashboard" replace />; // ADMIN or MANAGER
+  return <Navigate to="/dashboard" replace />; // ADMIN, MANAGER, LIBRARIAN
 };
 
 function AppContent() {
@@ -104,11 +100,11 @@ function AppContent() {
             }
           />
 
-          {/* staff dashboard */}
+          {/* staff dashboard (admin/manager/librarian) */}
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER"]}>
+              <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "LIBRARIAN"]}>
                 <AdminDashboard />
               </ProtectedRoute>
             }
@@ -141,14 +137,36 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+
+          {/* login activity – only staff */}
           <Route
-  path="/login-activity"
-  element={
-    <ProtectedRoute allowedRoles={["ADMIN"]}>
-      <LoginActivity />
-    </ProtectedRoute>
-  }
-/>
+            path="/login-activity"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN", "LIBRARIAN", "MANAGER"]}>
+                <LoginActivity />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* librarian dashboard (reuse AdminDashboard UI) */}
+          <Route
+            path="/librarian"
+            element={
+              <ProtectedRoute allowedRoles={["LIBRARIAN", "MANAGER"]}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* admin shortcut */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </div>

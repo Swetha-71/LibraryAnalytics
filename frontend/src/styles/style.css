@@ -64,6 +64,7 @@ body {
   font-weight: 600;
   letter-spacing: 0.03em;
 }
+
 body.login-page {
   background: radial-gradient(circle at top, #f5f7ff 0%, #e2e8f0 40%, #cbd5e1 100%);
 }
@@ -86,6 +87,17 @@ body.login-page {
   background-color: #ffffff;
   outline: none;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
+}
+
+/* ---- OTP row (email + button) ---- */
+.otp-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.otp-row .login-input {
+  margin-bottom: 0;
 }
 
 /* ---- Button ---- */
@@ -113,6 +125,12 @@ body.login-page {
 .login-btn:active {
   transform: translateY(0);
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
+}
+
+.login-btn:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* ---- Error Message ---- */
@@ -249,6 +267,7 @@ body.login-page {
     opacity: 1;
   }
 }
+
 /* Ensure app wrapper doesn't add its own background */
 #root,
 .App {
@@ -259,4 +278,37 @@ body.login-page {
 .app-main {
   background: transparent;
   padding-top: 24px;
+}
+
+/* ---- Login Activity table ---- */
+.login-activity-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.login-activity-table th,
+.login-activity-table td {
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+}
+
+.login-activity-table thead {
+  background-color: #f2f2f2;
+  font-weight: 600;
+}
+
+.login-activity-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.status-success {
+  color: green;
+  font-weight: 600;
+}
+
+.status-fail {
+  color: red;
+  font-weight: 600;
 }

@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8080/api";
+// TEMP: force this exact URL
+const API_BASE = "http://localhost:8080/api";
 
 let currentAuth = null;
 
@@ -14,9 +15,6 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Add interceptor for Basic Auth
-api.interceptors.request.use((config) => {
-  if (currentAuth) {
     const basic = btoa(`${currentAuth.username}:${currentAuth.password}`);
     config.headers["Authorization"] = `Basic ${basic}`;
   }
@@ -43,10 +41,29 @@ export const getAnalyticsSummary = () =>
 
 export const predictDemand = (bookId) =>
   api.get(`/analytics/predict/demand/${bookId}`).then((res) => res.data);
-
+*/
 // Auth
 export const register = (data) =>
   api.post("/auth/register", data).then((res) => res.data);
 
 export const loginApi = (identifier, password) =>
   api.post("/auth/login", { identifier, password }).then((res) => res.data);
+export const getStudentProfile = (username) =>
+  api
+    .get(`/student-profile/${username}`)
+    .then((res) => res.data)
+    .catch((err) => {
+      console.error("getStudentProfile error", err);
+      if (err.response && err.response.status === 404) {
+        return { success: false, message: "Profile not found" };
+      }
+      // for any other problem, rethrow so you see it
+      throw err;
+    });
+
+
+export const getSemesterRecommendations = (username) =>
+  api.get(`/recommendations/semester/${username}`).then(res => res.data);
+
+export const sendOtp = (email) =>
+  api.post("/auth/send-otp", { email }).then((res) => res.data);

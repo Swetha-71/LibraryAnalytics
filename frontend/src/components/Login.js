@@ -16,24 +16,29 @@ const Login = () => {
   }, []);
 
   const handleLogin = async (event) => {
-  event.preventDefault();
-  setError("");
+    event.preventDefault();
+    console.log("HANDLE LOGIN CALLED");
+    setError("");
 
-  const result = await login(identifier, password); // identifier = email or username
+    const result = await login(identifier, password);
+    console.log("LOGIN RESULT", result);
 
-  if (result.success) {
-    if (result.role === "ADMIN" || result.role === "MANAGER") {
-      navigate("/dashboard");
-    } else if (result.role === "STUDENT") {
-      navigate("/student");
+    if (result.success) {
+      if (
+        result.role === "ADMIN" ||
+        result.role === "MANAGER" ||
+        result.role === "LIBRARIAN"
+      ) {
+        navigate("/dashboard");        // staff dashboard
+      } else if (result.role === "STUDENT") {
+        navigate("/student");          // student dashboard
+      } else {
+        navigate("/");
+      }
     } else {
-      navigate("/");
+      setError(result.message || "Invalid credentials. Please try again.");
     }
-  } else {
-    setError(result.message || "Invalid credentials. Please try again.");
-  }
-};
-// ← close handleLogin here
+  };
 
   return (
     <div className="login-container">
