@@ -35,6 +35,8 @@ public class OtpService {
         emailOtpRepository.save(token);
 
         SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom("noreply@test.com");
+
         msg.setTo(email);
         msg.setSubject("Your LibraryAnalytics OTP");
         msg.setText("Your OTP is: " + otp + " (valid for 5 minutes)");

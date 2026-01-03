@@ -33,14 +33,27 @@ public class AuthController {
     }
 
     @PostMapping("/send-otp")
-    public Map<String, Object> sendOtp(@RequestBody Map<String, String> body) {
+        public Map<String, Object> sendOtp(@RequestBody Map<String, String> body) {
+        try {
         String email = body.get("email");
-        if (email == null) {
+        if (email == null || email.isBlank()) {
             return Map.of("success", false, "message", "Email required");
         }
+
         otpService.sendOtp(email);
         return Map.of("success", true, "message", "OTP sent");
-    }
+
+        } catch (Exception e) {
+        // 🔥 THIS WILL SHOW THE REAL PROBLEM
+        e.printStackTrace();
+
+        return Map.of(
+            "success", false,
+            "message", "Failed to send OTP"
+        );
+        }
+}
+
 
     // -------- REGISTER --------
     @PostMapping("/register")
