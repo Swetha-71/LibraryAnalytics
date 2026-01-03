@@ -55,4 +55,4 @@ public class StudentProfileController {
 
         return ResponseEntity.ok(dto);
     }
-}
+}  

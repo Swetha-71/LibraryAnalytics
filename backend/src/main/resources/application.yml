@@ -1,12 +1,17 @@
 spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/libraryanalytics
+
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: your_real_email@gmail.com
-    password: your_16_char_app_password
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: 8d0bc5fc7d366d
+    password: 5baccde177c131
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+    debug: true

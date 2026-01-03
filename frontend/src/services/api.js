@@ -67,3 +67,37 @@ export const getSemesterRecommendations = (username) =>
 
 export const sendOtp = (email) =>
   api.post("/auth/send-otp", { email }).then((res) => res.data);
+// ================= ADDITIONS  =================
+
+// Search books (for student dashboard search)
+export const searchBooks = (query) =>
+  api.get(`/books/search?query=${query}`).then(res => res.data);
+
+// Get borrowed books of a student
+export const getBorrowedBooks = (username) =>
+  api.get(`/borrowed-books/${username}`).then(res => res.data);
+
+// Get total fine of a student
+export const getFines = (username) =>
+  api.get(`/student-fines/${username}`).then(res => res.data);
+// ---------------- PROFILES (for student dashboard) ----------------
+
+// Get a student's profile from the new "profiles" collection
+export const getProfile = (username) =>
+  api
+    .get(`/profiles/${username}`)
+    .then(res => res.data)
+    .catch(err => {
+      console.error("getProfile error", err);
+      return { success: false, message: "Profile not found" };
+    });
+
+// Update a student's profile (branch, semester, etc.)
+export const updateProfile = (username, data) =>
+  api
+    .put(`/profiles/${username}`, data)
+    .then(res => res.data)
+    .catch(err => {
+      console.error("updateProfile error", err);
+      return { success: false, message: "Failed to update profile" };
+    });
