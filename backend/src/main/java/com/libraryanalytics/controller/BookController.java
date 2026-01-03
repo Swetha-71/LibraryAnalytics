@@ -1,4 +1,3 @@
-// src/main/java/com/libraryanalytics/controller/BookController.java
 package com.libraryanalytics.controller;
 
 import com.libraryanalytics.model.Book;
@@ -19,14 +18,22 @@ public class BookController {
         this.repo = repo;
     }
 
+    // Create a book
     @PostMapping
     public Map<String, Object> create(@RequestBody Book book) {
         Book saved = repo.save(book);
         return Map.of("success", true, "book", saved);
     }
 
+    // Get all books
     @GetMapping
     public List<Book> all() {
         return repo.findAll();
+    }
+
+    // ======  THIS SEARCH ENDPOINT ======
+    @GetMapping("/search")
+    public List<Book> searchBooks(@RequestParam String query) {
+        return repo.findByTitleContainingIgnoreCase(query);
     }
 }
