@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// TEMP: force this exact URL
 const API_BASE = "http://localhost:8080/api";
 
 let currentAuth = null;
@@ -13,8 +12,10 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-/*api.interceptors.request.use((config) => {
-if (currentAuth) {
+/*
+// If you later want Basic Auth, uncomment this:
+api.interceptors.request.use((config) => {
+  if (currentAuth) {
     const basic = btoa(`${currentAuth.username}:${currentAuth.password}`);
     config.headers["Authorization"] = `Basic ${basic}`;
   }
@@ -39,12 +40,18 @@ export const getAnalyticsSummary = () =>
 export const predictDemand = (bookId) =>
   api.get(`/analytics/predict/demand/${bookId}`).then((res) => res.data);
 */
+
 // Auth
 export const register = (data) =>
   api.post("/auth/register", data).then((res) => res.data);
 
 export const loginApi = (identifier, password) =>
   api.post("/auth/login", { identifier, password }).then((res) => res.data);
+
+export const sendOtp = (email) =>
+  api.post("/auth/send-otp", { email }).then((res) => res.data);
+
+// Student profile (old)
 export const getStudentProfile = (username) =>
   api
     .get(`/student-profile/${username}`)
@@ -54,37 +61,41 @@ export const getStudentProfile = (username) =>
       if (err.response && err.response.status === 404) {
         return { success: false, message: "Profile not found" };
       }
-      // for any other problem, rethrow so you see it
       throw err;
     });
 
-
+// Semester-based recommendations
 export const getSemesterRecommendations = (username) =>
-  api.get(`/recommendations/semester/${username}`).then(res => res.data);
+  api.get(`/recommendations/semester/${username}`).then((res) => res.data);
 
-export const sendOtp = (email) =>
-  api.post("/auth/send-otp", { email }).then((res) => res.data);
-// ================= ADDITIONS  =================
+// Friends-are-reading recommendations
+export const getFriendsRecommendations = (username) =>
+  api
+    .get(`/recommendations/friends/${username}`)
+    .then(res => res.data.borrowings || []);
+
+// ================= ADDITIONS =================
 
 // Search books (for student dashboard search)
 export const searchBooks = (query) =>
-  api.get(`/books/search?query=${query}`).then(res => res.data);
+  api.get(`/books/search?query=${query}`).then((res) => res.data);
 
 // Get borrowed books of a student
 export const getBorrowedBooks = (username) =>
-  api.get(`/borrowed-books/${username}`).then(res => res.data);
+  api.get(`/borrowed-books/${username}`).then((res) => res.data);
 
 // Get total fine of a student
 export const getFines = (username) =>
-  api.get(`/student-fines/${username}`).then(res => res.data);
+  api.get(`/student-fines/${username}`).then((res) => res.data);
+
 // ---------------- PROFILES (for student dashboard) ----------------
 
 // Get a student's profile from the new "profiles" collection
 export const getProfile = (username) =>
   api
     .get(`/profiles/${username}`)
-    .then(res => res.data)
-    .catch(err => {
+    .then((res) => res.data)
+    .catch((err) => {
       console.error("getProfile error", err);
       return { success: false, message: "Profile not found" };
     });
@@ -93,8 +104,8 @@ export const getProfile = (username) =>
 export const updateProfile = (username, data) =>
   api
     .put(`/profiles/${username}`, data)
-    .then(res => res.data)
-    .catch(err => {
+    .then((res) => res.data)
+    .catch((err) => {
       console.error("updateProfile error", err);
       return { success: false, message: "Failed to update profile" };
     });
