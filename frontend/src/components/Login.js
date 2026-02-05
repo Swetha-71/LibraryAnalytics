@@ -2,6 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/style.css";
+import AppShell from "../components/AppShell";
+
+function LoginPage() {
+  return (
+    <AppShell>
+      <div className="login-container">
+        {/* existing login/register JSX here */}
+      </div>
+    </AppShell>
+  );
+}
 
 const Login = () => {
   const [identifier, setIdentifier] = useState(""); // email or username

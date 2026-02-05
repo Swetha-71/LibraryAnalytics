@@ -9,6 +9,7 @@ import com.libraryanalytics.repository.CurriculumRepository;
 import com.libraryanalytics.repository.StudentProfileRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.libraryanalytics.service.FriendsRecommendationService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,14 +22,32 @@ public class RecommendationController {
     private final StudentProfileRepository studentRepo;
     private final CurriculumRepository curriculumRepo;
     private final BookRepository bookRepo;
+// inject FriendsRecommendationService
+private final FriendsRecommendationService friendsService;
 
-    public RecommendationController(StudentProfileRepository studentRepo,
-                                    CurriculumRepository curriculumRepo,
-                                    BookRepository bookRepo) {
-        this.studentRepo = studentRepo;
-        this.curriculumRepo = curriculumRepo;
-        this.bookRepo = bookRepo;
-    }
+public RecommendationController(StudentProfileRepository studentRepo,
+                                CurriculumRepository curriculumRepo,
+                                BookRepository bookRepo,
+                                FriendsRecommendationService friendsService) {
+    this.studentRepo = studentRepo;
+    this.curriculumRepo = curriculumRepo;
+    this.bookRepo = bookRepo;
+    this.friendsService = friendsService;
+}
+
+// existing /semester/{username} method ...
+
+@GetMapping("/friends/{username}")
+public ResponseEntity<?> friends(@PathVariable String username) {
+    var borrowings = friendsService.friendsAreReading(username);
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("success", true);
+    body.put("borrowings", borrowings);
+
+    return ResponseEntity.ok(body);
+}
+
 
     @GetMapping("/semester/{username}")
     public ResponseEntity<?> recommendForSemester(@PathVariable String username) {

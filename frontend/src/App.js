@@ -13,12 +13,13 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   return (
     <nav
-      style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        padding: "1rem 0",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-      }}
-    >
+  style={{
+    background: "linear-gradient(135deg,#e0f2fe,#fefce8)",
+    padding: "1rem 0",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)"
+  }}
+>
+
       <div
         style={{
           maxWidth: "1200px",
@@ -29,27 +30,27 @@ const Navbar = () => {
           alignItems: "center",
         }}
       >
-        <div style={{ color: "white", fontSize: "24px", fontWeight: "bold" }}>
-          📚 LibraryAnalytics
-        </div>
-        {user && (
-          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-            <span style={{ color: "white" }}>👋 {user.name}</span>
-            <button
-              onClick={logout}
-              style={{
-                background: "none",
-                color: "white",
-                border: "1px solid white",
-                padding: "8px 16px",
-                borderRadius: "20px",
-                cursor: "pointer",
-              }}
-            >
-              Logout
-            </button>
-          </div>
-        )}
+        <div style={{ color: "#0f172a", fontSize: "24px", fontWeight: "bold" }}>
+  📚 LibraryAnalytics
+</div>
+{user && (
+  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+    <span style={{ color: "#0f172a" }}>👋 {user.name}</span>
+    <button
+      onClick={logout}
+      style={{
+        background: "none",
+        color: "#0f172a",
+        border: "1px solid #0f172a",
+        padding: "8px 16px",
+        borderRadius: "20px",
+        cursor: "pointer"
+      }}
+    >
+      Logout
+    </button>
+  </div>
+)}
       </div>
     </nav>
   );
