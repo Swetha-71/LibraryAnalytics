@@ -22,19 +22,24 @@ public class FriendsRecommendationService {
     }
 
     public List<Borrowing> friendsAreReading(String username) {
+
+        // 1️⃣ Get logged-in student profile
         StudentProfile me = studentRepo.findByUsername(username).orElse(null);
         if (me == null) return Collections.emptyList();
 
+        // 2️⃣ Get classmates (same branch + semester)
         List<StudentProfile> classmates =
                 studentRepo.findByBranchAndSemester(me.getBranch(), me.getSemester());
 
+        // 3️⃣ Extract classmate usernames (exclude self)
         List<String> classmateIds = classmates.stream()
-                .map(StudentProfile::getUsername)   // username == studentId in Borrowing
-                .filter(u -> !u.equals(username))
+                .map(StudentProfile::getUsername)   // username == studentId
+                .filter(u -> !u.equalsIgnoreCase(username)) // 🚫 exclude self
                 .toList();
+
         if (classmateIds.isEmpty()) return Collections.emptyList();
 
-        // Just return classmates' borrowings (no Book repo needed)
-        return borrowingRepo.findByStudentIdIn(classmateIds);
+        // 4️⃣ Fetch ONLY currently borrowed books by classmates
+        return borrowingRepo.findByStudentIdInAndReturnedFalse(classmateIds);
     }
 }

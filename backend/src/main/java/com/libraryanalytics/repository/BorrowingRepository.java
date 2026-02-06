@@ -14,4 +14,7 @@ public interface BorrowingRepository extends MongoRepository<Borrowing, String> 
 
     // borrowings of many students (friends / classmates)
     List<Borrowing> findByStudentIdIn(List<String> studentIds);
+
+    // ✅ ONLY currently borrowed books (friends recommendation)
+    List<Borrowing> findByStudentIdInAndReturnedFalse(List<String> studentIds);
 }
